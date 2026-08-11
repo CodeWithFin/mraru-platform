@@ -228,7 +228,7 @@ export async function inviteMember(params: {
   actorMemberId: string;
   phone: string;
   role: MemberRole;
-}): Promise<{ inviteId: string; slug: string; chamaName: string }> {
+}): Promise<{ inviteId: string; slug: string; chamaName: string; devLink?: string }> {
   const result = await withTenant(params.chamaId, async (tx) => {
     await assertActiveActor(tx, params.chamaId, params.actorMemberId);
 
