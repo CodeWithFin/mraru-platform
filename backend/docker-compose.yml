@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: mraru-postgres
+    environment:
+      POSTGRES_USER: mraru
+      POSTGRES_PASSWORD: mraru
+      POSTGRES_DB: mraru
+    ports:
+      - '5433:5432'
+    volumes:
+      - mraru-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U mraru -d mraru']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: mraru-redis
+    ports:
+      - '6381:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    container_name: mraru-minio
+    command: server /data --console-address ':9001'
+    environment:
+      MINIO_ROOT_USER: mraru
+      MINIO_ROOT_PASSWORD: mraru-secret
+    ports:
+      - '9100:9000'
+      - '9101:9001'
+    volumes:
+      - mraru-miniodata:/data
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mraru-pgdata:
+  mraru-miniodata:
