@@ -1,4 +1,5 @@
 import { HttpError } from './errors.js';
+import { env } from '../env.js';
 import { getRedis } from '../services/queue.js';
 
 /** Window tracker keyed by a string. Prunes itself on access. */
@@ -51,7 +52,7 @@ export class RateLimiter {
     private readonly max: number,
     private readonly scope: string,
   ) {
-    this.backend = envHasRedis() ? new RedisWindow() : new MemoryWindow();
+    this.backend = useRedisBackend() ? new RedisWindow() : new MemoryWindow();
   }
 
   /** Record a hit; throw 429 if the window is already exhausted. */
@@ -69,6 +70,13 @@ export class RateLimiter {
   }
 }
 
-function envHasRedis(): boolean {
-  return Boolean(process.env.REDIS_URL);
+/**
+ * Use the Redis backend only when configured and not under test. Unit tests
+ * must run against the deterministic in-memory window even when `.env` sets
+ * REDIS_URL — dotenv loads it into process.env as soon as the module graph
+ * imports env.ts, which previously made tests hang on a Redis that isn't
+ * running.
+ */
+function useRedisBackend(): boolean {
+  return Boolean(env.REDIS_URL) && env.NODE_ENV !== 'test';
 }
