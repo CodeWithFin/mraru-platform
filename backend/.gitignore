@@ -1,9 +1,0 @@
-node_modules/
-dist/
-.env
-uploads/
-coverage/
-*.log
-
-# Stray 0-byte artifact from a bash redirect typo
-bash

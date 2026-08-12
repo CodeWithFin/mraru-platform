@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+/* Custom sleek scrollbar to keep it sleek matching user template */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a3a3a3;
+}
+
+.lime-glow {
+  box-shadow: 0 0 25px rgba(204, 243, 47, 0.25);
+}
+
+.lime-border-glow {
+  border-color: #ccf32f;
+  box-shadow: 0 0 15px rgba(204, 243, 47, 0.3);
+}
