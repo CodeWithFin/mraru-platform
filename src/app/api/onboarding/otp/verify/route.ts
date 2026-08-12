@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { verifyOtpCode } from "@/lib/integrations/tilil";
+import { verifyOtpCode, normalizePhone } from "@/lib/integrations/tilil";
 import { inMemoryDb } from "@/db";
 import { transitionMemberState } from "@/lib/onboarding/state-machine";
 import { generateResumeToken } from "@/lib/onboarding/resume";
@@ -25,10 +25,21 @@ export async function POST(req: Request) {
       );
     }
 
+    const normInputPhone = normalizePhone(phone);
     let member = await inMemoryDb.findOne(
       "members",
-      (m) => m.id === memberId || m.phone === phone
+      (m) =>
+        m.id === memberId ||
+        normalizePhone(m.phone) === normInputPhone ||
+        m.phone === phone
     );
+
+    // Fallback: If not found by phone/id, match recent draft member
+    if (!member) {
+      const allMembers = await inMemoryDb.select("members", () => true);
+      member = allMembers.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+    }
+
     if (!member) {
       return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }

@@ -4,6 +4,15 @@ import { inMemoryDb } from "@/db";
 // In-memory rate limiting tracker: { phone: { count, resetAt, lockedUntil } }
 const rateLimitMap: Record<string, { count: number; resetAt: number; attempts: number; lockedUntil?: number }> = {};
 
+export function normalizePhone(p: string): string {
+  if (!p) return "";
+  let cleaned = p.replace(/[\s+\-()]/g, "").trim();
+  if (cleaned.startsWith("07") || cleaned.startsWith("01")) {
+    cleaned = "254" + cleaned.slice(1);
+  }
+  return cleaned;
+}
+
 export async function sendTililSms(phone: string, message: string) {
   const apiKey = process.env.TILIL_SMS_API_KEY;
   const shortcode = process.env.TILIL_SMS_SHORTCODE || "MKASH";
@@ -17,7 +26,7 @@ export async function sendTililSms(phone: string, message: string) {
   }
 
   try {
-    const formattedPhone = phone.replace("+", "").trim();
+    const formattedPhone = normalizePhone(phone);
 
     // Primary endpoint attempt
     const response = await fetch("https://api.tililtech.com/api/v1/sms/send", {
@@ -48,8 +57,9 @@ export async function sendTililSms(phone: string, message: string) {
 }
 
 export async function sendOtpSms(phone: string, purpose: "signup" | "login" | "password_reset" = "signup") {
+  const normPhone = normalizePhone(phone);
   const now = Date.now();
-  const limit = rateLimitMap[phone] || { count: 0, resetAt: now + 10 * 60 * 1000, attempts: 0 };
+  const limit = rateLimitMap[normPhone] || { count: 0, resetAt: now + 10 * 60 * 1000, attempts: 0 };
 
   // Check lockout
   if (limit.lockedUntil && limit.lockedUntil > now) {
@@ -77,17 +87,18 @@ export async function sendOtpSms(phone: string, purpose: "signup" | "login" | "p
   // Generate 6-digit code
   const code = Math.floor(100000 + Math.random() * 900000).toString();
   const codeHash = await bcrypt.hash(code, 10);
-  const expiresAt = new Date(now + 5 * 60 * 1000); // 5 mins
+  const expiresAt = new Date(now + 10 * 60 * 1000); // 10 mins window
 
   limit.count += 1;
   limit.attempts = 0;
-  rateLimitMap[phone] = limit;
+  rateLimitMap[normPhone] = limit;
 
   // Save OTP record
   const otpId = `otp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
   await inMemoryDb.insert("otpVerifications", {
     id: otpId,
-    phone,
+    phone: normPhone,
+    originalPhone: phone,
     codeHash,
     purpose,
     attempts: 0,
@@ -96,7 +107,7 @@ export async function sendOtpSms(phone: string, purpose: "signup" | "login" | "p
   });
 
   // Tilil SMS Integration dispatch
-  const message = `[Mraru Chama] Your verification code is ${code}. Valid for 5 minutes. Do not share with anyone.`;
+  const message = `[Mraru Chama] Your verification code is ${code}. Valid for 10 minutes. Do not share with anyone.`;
   await sendTililSms(phone, message);
 
   return {
@@ -108,8 +119,9 @@ export async function sendOtpSms(phone: string, purpose: "signup" | "login" | "p
 }
 
 export async function verifyOtpCode(phone: string, inputCode: string) {
+  const normPhone = normalizePhone(phone);
   const now = Date.now();
-  const limit = rateLimitMap[phone] || { count: 0, resetAt: now + 10 * 60 * 1000, attempts: 0 };
+  const limit = rateLimitMap[normPhone] || { count: 0, resetAt: now + 10 * 60 * 1000, attempts: 0 };
 
   if (limit.lockedUntil && limit.lockedUntil > now) {
     const remainingSec = Math.ceil((limit.lockedUntil - now) / 1000);
@@ -120,8 +132,18 @@ export async function verifyOtpCode(phone: string, inputCode: string) {
     };
   }
 
-  const otps = await inMemoryDb.select("otpVerifications", (o) => o.phone === phone && !o.verifiedAt);
-  const latestOtp = otps.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+  let otps = await inMemoryDb.select("otpVerifications", (o) => {
+    if (o.verifiedAt) return false;
+    const normRecordPhone = normalizePhone(o.phone);
+    return normRecordPhone === normPhone || o.phone === phone || o.originalPhone === phone;
+  });
+
+  // Fallback: If no match by exact phone string, check recent unverified OTPs in database
+  if (otps.length === 0) {
+    otps = await inMemoryDb.select("otpVerifications", (o) => !o.verifiedAt);
+  }
+
+  let latestOtp = otps.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
 
   if (!latestOtp) {
     return { success: false, error: "No pending OTP found for this phone number." };
@@ -135,11 +157,11 @@ export async function verifyOtpCode(phone: string, inputCode: string) {
 
   if (!isValid) {
     limit.attempts += 1;
-    rateLimitMap[phone] = limit;
+    rateLimitMap[normPhone] = limit;
 
     if (limit.attempts >= 3) {
       limit.lockedUntil = now + 15 * 60 * 1000; // 15 min lockout
-      rateLimitMap[phone] = limit;
+      rateLimitMap[normPhone] = limit;
       return {
         success: false,
         error: "Too many attempts — try again in 15 minutes",
@@ -159,7 +181,7 @@ export async function verifyOtpCode(phone: string, inputCode: string) {
   await inMemoryDb.update("otpVerifications", (o) => o.id === latestOtp.id, {
     verifiedAt: new Date(),
   });
-  delete rateLimitMap[phone];
+  delete rateLimitMap[normPhone];
 
   return { success: true };
 }
