@@ -357,7 +357,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
             <span className="text-xs font-mono uppercase tracking-widest text-neutral-500 font-bold">
               ONBOARDING STATE MACHINE
             </span>
-            <h2 className="text-2xl sm:text-3xl font-semibold text-neutral-900 mt-1 tracking-tight">
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-neutral-900 mt-1 tracking-tight">
               {path === "founder" ? "Path A: Chama Founder Setup" : "Path B: Member Join via Invite"}
             </h2>
             <p className="text-xs text-neutral-500 mt-1">
@@ -378,7 +378,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
               }}
               className={`px-4 py-2 rounded-full text-xs font-medium transition-all ${
                 path === "founder"
-                  ? "bg-black text-white font-medium shadow-md"
+                  ? "bg-mraru-forest text-white font-medium shadow-md"
                   : "text-neutral-500 hover:text-black"
               }`}
             >
@@ -430,7 +430,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
         {onboardingState === "started" || onboardingState === "phone_verified" ? (
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#C8F169] text-black flex items-center justify-center font-bold text-lg shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-mraru-lime text-mraru-forest flex items-center justify-center font-bold text-lg shadow-sm">
                 1
               </div>
               <div>
@@ -489,7 +489,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                 <button
                   onClick={handleSendOtp}
                   disabled={loading || lockoutTimer > 0}
-                  className="w-full bg-black text-white font-medium py-3.5 rounded-full hover:bg-neutral-800 transition-transform hover:scale-[1.01] flex items-center justify-center gap-2 disabled:opacity-50 shadow-md"
+                  className="w-full bg-mraru-forest text-white font-medium py-3.5 rounded-full transition-transform hover:scale-[1.03] flex items-center justify-center gap-2 disabled:opacity-50 shadow-md"
                 >
                   {loading ? "Sending SMS..." : "Send Verification Code"}
                   <ArrowRight className="w-4 h-4" />
@@ -504,7 +504,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                   </div>
                   {demoOtp && (
                     <p className="font-mono text-black font-semibold pt-1">
-                      [Demo Code: <strong className="text-[#C8F169] bg-black px-1.5 py-0.5 rounded">{demoOtp}</strong>]
+                      [Demo Code: <strong className="text-mraru-lime bg-mraru-forest px-1.5 py-0.5 rounded">{demoOtp}</strong>]
                     </p>
                   )}
                 </div>
@@ -526,7 +526,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                 <button
                   onClick={handleVerifyOtp}
                   disabled={loading || lockoutTimer > 0}
-                  className="w-full bg-[#C8F169] text-black font-semibold py-3.5 rounded-full hover:bg-[#b4e150] transition-transform hover:scale-[1.01] flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm"
+                  className="w-full bg-mraru-lime text-mraru-forest font-semibold py-3.5 rounded-full transition-transform hover:scale-[1.03] flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm"
                 >
                   {loading ? "Verifying..." : "Verify Code & Proceed"}
                   <CheckCircle className="w-4 h-4" />
@@ -540,7 +540,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
         {onboardingState === "chama_config_pending" && path === "founder" ? (
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#C8F169] text-black flex items-center justify-center font-bold text-lg shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-mraru-lime text-mraru-forest flex items-center justify-center font-bold text-lg shadow-sm">
                 2
               </div>
               <div>
@@ -600,7 +600,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
             <button
               onClick={handleCreateChamaConfig}
               disabled={loading}
-              className="bg-black text-white font-medium px-8 py-3.5 rounded-full hover:bg-neutral-800 transition-transform hover:scale-105 flex items-center gap-2 shadow-md"
+              className="bg-mraru-forest text-white font-medium px-8 py-3.5 rounded-full transition-transform hover:scale-[1.03] flex items-center gap-2 shadow-md"
             >
               Save Chama Config & Continue
               <ArrowRight className="w-4 h-4" />
@@ -612,7 +612,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
         {onboardingState === "details_submitted" ? (
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#C8F169] text-black flex items-center justify-center font-bold text-lg shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-mraru-lime text-mraru-forest flex items-center justify-center font-bold text-lg shadow-sm">
                 3
               </div>
               <div>
@@ -719,7 +719,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
             <button
               onClick={handleSubmitDetails}
               disabled={loading}
-              className="bg-black text-white font-medium px-8 py-3.5 rounded-full hover:bg-neutral-800 transition-transform hover:scale-105 flex items-center gap-2 shadow-md"
+              className="bg-mraru-forest text-white font-medium px-8 py-3.5 rounded-full transition-transform hover:scale-[1.03] flex items-center gap-2 shadow-md"
             >
               Submit Details & Create KYC Session
               <ArrowRight className="w-4 h-4" />
@@ -733,7 +733,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
         onboardingState === "kyc_declined" ? (
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#C8F169] text-black flex items-center justify-center font-bold text-lg shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-mraru-lime text-mraru-forest flex items-center justify-center font-bold text-lg shadow-sm">
                 4
               </div>
               <div>
@@ -786,7 +786,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                     href={kycSessionUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-full bg-[#C8F169] text-black font-semibold py-3.5 rounded-full flex items-center justify-center gap-2 hover:bg-[#b4e150] transition-all shadow-sm"
+                    className="w-full bg-mraru-lime text-mraru-forest font-semibold py-3.5 rounded-full flex items-center justify-center gap-2 transition-transform hover:scale-[1.03] shadow-sm"
                   >
                     <span>Launch Didit Hosted KYC Window</span>
                     <ExternalLink className="w-4 h-4" />
@@ -828,7 +828,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
         {onboardingState === "constitution_pending" ? (
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#C8F169] text-black flex items-center justify-center font-bold text-lg shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-mraru-lime text-mraru-forest flex items-center justify-center font-bold text-lg shadow-sm">
                 5
               </div>
               <div>
@@ -867,7 +867,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
             <button
               onClick={handleAcceptConstitution}
               disabled={loading || !hasScrolledConstitution}
-              className="w-full bg-[#C8F169] text-black font-semibold py-3.5 rounded-full hover:bg-[#b4e150] transition-transform hover:scale-[1.01] flex items-center justify-center gap-2 disabled:opacity-40 shadow-sm"
+              className="w-full bg-mraru-lime text-mraru-forest font-semibold py-3.5 rounded-full transition-transform hover:scale-[1.03] flex items-center justify-center gap-2 disabled:opacity-40 shadow-sm"
             >
               {hasScrolledConstitution ? "I Accept Chama Constitution" : "Scroll down to enable Accept button"}
               <CheckCircle className="w-4 h-4" />
@@ -882,7 +882,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
               <Clock className="w-8 h-8" />
             </div>
             <div>
-              <h3 className="text-2xl font-semibold text-neutral-900 tracking-tight">Awaiting Governance Approval</h3>
+              <h3 className="font-display text-2xl font-extrabold text-neutral-900 tracking-tight">Awaiting Governance Approval</h3>
               <p className="text-sm text-neutral-500 max-w-md mx-auto mt-2">
                 Your KYC identity and constitution acceptance are complete. You are now in the Secretary approval queue.
               </p>
@@ -923,10 +923,10 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
             </div>
 
             <div>
-              <span className="px-3 py-1 rounded-full bg-[#C8F169]/40 text-black text-xs font-mono font-bold border border-[#C8F169]/60 uppercase">
+              <span className="px-3 py-1 rounded-full bg-mraru-lime/40 text-mraru-forest text-xs font-mono font-bold border border-mraru-lime/60 uppercase">
                 Active Member
               </span>
-              <h3 className="text-3xl font-bold text-neutral-900 tracking-tight mt-3">Welcome to Mraru Chama!</h3>
+              <h3 className="font-display text-3xl font-extrabold text-neutral-900 tracking-tight mt-3">Welcome to Mraru Chama!</h3>
               <p className="text-sm text-neutral-500 max-w-md mx-auto mt-2">
                 Your Chama account is fully activated. You are ready to contribute, vote, and access lending pools.
               </p>
