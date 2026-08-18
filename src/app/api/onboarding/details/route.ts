@@ -26,10 +26,17 @@ export async function POST(req: Request) {
     }
 
     let chamaId = member.chamaId;
+    let invitedRole: string | undefined;
 
     // Handle invite code if member is joining via Path B
     if (inviteCode && !chamaId) {
-      const invite = await store.findOne("invites", (i) => i.code === inviteCode && !i.usedAt);
+      const invite = await store.findOne(
+        "invites",
+        (i) =>
+          i.code === inviteCode &&
+          !i.usedAt &&
+          new Date(i.expiresAt).getTime() > Date.now()
+      );
       if (!invite) {
         return NextResponse.json(
           {
@@ -40,6 +47,7 @@ export async function POST(req: Request) {
         );
       }
       chamaId = invite.chamaId;
+      invitedRole = invite.role;
       await store.update("invites", (i) => i.id === invite.id, { usedAt: new Date() });
     }
 
@@ -58,7 +66,9 @@ export async function POST(req: Request) {
       }
     }
 
-    // Persist details immediately
+    // Persist details immediately. Role-specific invites (Treasurer/Secretary)
+    // set the member's role here; it still only takes effect once Chairperson
+    // sign-off (governance approval) activates the member.
     const updatedMember = await store.update("members", (m) => m.id === memberId, {
       chamaId: chamaId || member.chamaId,
       fullName,
@@ -68,6 +78,7 @@ export async function POST(req: Request) {
       nextOfKinPhone,
       nextOfKinRelationship,
       profileImageUrl: profileImageUrl || member.profileImageUrl,
+      role: invitedRole || member.role,
       updatedAt: new Date(),
     });
 
