@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { sendOtpSms } from "@/lib/integrations/tilil";
-import { inMemoryDb } from "@/db";
+import { store } from "@/db";
 import { transitionMemberState } from "@/lib/onboarding/state-machine";
 
 export async function POST(req: Request) {
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     const targetChamaId = chamaId || "chama_mraru_001";
 
     // Check duplicate phone in Mraru Chama
-    const existingMember = await inMemoryDb.findOne(
+    const existingMember = await store.findOne(
       "members",
       (m) => m.chamaId === targetChamaId && m.phone === phone
     );
@@ -33,10 +33,10 @@ export async function POST(req: Request) {
     }
 
     // Ensure member record exists or create initial draft
-    let member = await inMemoryDb.findOne("members", (m) => m.phone === phone);
+    let member = await store.findOne("members", (m) => m.phone === phone);
     if (!member) {
       const memberId = `mem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-      member = await inMemoryDb.insert("members", {
+      member = await store.insert("members", {
         id: memberId,
         phone,
         chamaId: chamaId || null,

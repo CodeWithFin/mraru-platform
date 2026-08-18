@@ -1,0 +1,1 @@
+ALTER TABLE "members" ADD COLUMN "last_nudge_stage" text;

@@ -2,17 +2,17 @@ import { NextResponse } from "next/server";
 import { verifyDiditWebhookSignature } from "@/lib/integrations/didit";
 import { addJob } from "@/lib/jobs/queues";
 import { processKycWebhookPayload } from "@/lib/jobs/workers";
-import { inMemoryDb } from "@/db";
+import { store } from "@/db";
 
 export async function POST(req: Request) {
   try {
     const rawBody = await req.text();
     const signature = req.headers.get("x-signature-v2");
 
-    // Signature verification (in demo mode with mock signature headers, allow bypass for testing)
-    const isValidSignature =
-      signature === "mock_signature" ||
-      verifyDiditWebhookSignature(rawBody, signature);
+    // Webhook testing goes through POST /api/simulator (action:
+    // "simulate_didit_webhook"), which calls the worker directly — this
+    // endpoint must never accept an unsigned or spoofed signature header.
+    const isValidSignature = verifyDiditWebhookSignature(rawBody, signature);
 
     let payload: any;
     try {
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
     // Log raw payload into webhook_events table
     const eventId = `wh_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    await inMemoryDb.insert("webhookEvents", {
+    await store.insert("webhookEvents", {
       id: eventId,
       source: "didit",
       eventId: payload.event_id || payload.session_id,

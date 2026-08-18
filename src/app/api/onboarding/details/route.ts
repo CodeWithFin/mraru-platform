@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { inMemoryDb } from "@/db";
+import { store } from "@/db";
 import { transitionMemberState } from "@/lib/onboarding/state-machine";
 
 export async function POST(req: Request) {
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Full Name and National ID are required" }, { status: 400 });
     }
 
-    const member = await inMemoryDb.findOne("members", (m) => m.id === memberId);
+    const member = await store.findOne("members", (m) => m.id === memberId);
     if (!member) {
       return NextResponse.json({ error: "Member record not found" }, { status: 404 });
     }
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
 
     // Handle invite code if member is joining via Path B
     if (inviteCode && !chamaId) {
-      const invite = await inMemoryDb.findOne("invites", (i) => i.code === inviteCode && !i.usedAt);
+      const invite = await store.findOne("invites", (i) => i.code === inviteCode && !i.usedAt);
       if (!invite) {
         return NextResponse.json(
           {
@@ -40,13 +40,13 @@ export async function POST(req: Request) {
         );
       }
       chamaId = invite.chamaId;
-      await inMemoryDb.update("invites", (i) => i.id === invite.id, { usedAt: new Date() });
+      await store.update("invites", (i) => i.id === invite.id, { usedAt: new Date() });
     }
 
     // National ID duplicate check in same Chama
     let duplicateFlagged = false;
     if (chamaId) {
-      const existingWithId = await inMemoryDb.findOne(
+      const existingWithId = await store.findOne(
         "members",
         (m) => m.chamaId === chamaId && m.nationalIdEncrypted === nationalId && m.id !== memberId
       );
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
     }
 
     // Persist details immediately
-    const updatedMember = await inMemoryDb.update("members", (m) => m.id === memberId, {
+    const updatedMember = await store.update("members", (m) => m.id === memberId, {
       chamaId: chamaId || member.chamaId,
       fullName,
       email,

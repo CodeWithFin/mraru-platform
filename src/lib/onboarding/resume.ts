@@ -1,8 +1,7 @@
 import jwt from "jsonwebtoken";
-import { inMemoryDb } from "@/db";
+import { store } from "@/db";
 import { createDiditKycSession } from "@/lib/integrations/didit";
-
-const JWT_SECRET = process.env.JWT_SECRET || "mraru_secret_key_onboarding_2026";
+import { JWT_SECRET } from "@/lib/auth/jwt-secret";
 
 export function generateResumeToken(memberId: string, expiresInDays = 7) {
   const expiresAt = new Date();
@@ -24,7 +23,7 @@ export async function processResumeToken(token: string) {
       return { success: false, error: "Invalid token type" };
     }
 
-    const member = await inMemoryDb.findOne("members", (m) => m.id === decoded.memberId);
+    const member = await store.findOne("members", (m) => m.id === decoded.memberId);
     if (!member) {
       return { success: false, error: "Member record not found" };
     }
@@ -36,7 +35,7 @@ export async function processResumeToken(token: string) {
       if (isExpired) {
         // Silently generate fresh session
         const freshSession = await createDiditKycSession(member);
-        await inMemoryDb.update("members", (m) => m.id === member.id, {
+        await store.update("members", (m) => m.id === member.id, {
           kycSessionId: freshSession.session_id,
           kycStatus: "pending_review",
         });

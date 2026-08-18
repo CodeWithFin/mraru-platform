@@ -109,6 +109,10 @@ export const members = pgTable(
     resumeTokenExpiresAt: timestamp("resume_token_expires_at"),
     approvedByMemberId: text("approved_by_member_id"),
     approvedAt: timestamp("approved_at"),
+    // Tracks which idle-nudge threshold (1h / 24h) has already been sent, so
+    // the idle scanner sends each nudge once per threshold crossing instead
+    // of re-sending on every scan while a member sits idle within a window.
+    lastNudgeStage: text("last_nudge_stage"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },

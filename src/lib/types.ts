@@ -52,6 +52,7 @@ export interface MemberRecord {
   resumeTokenExpiresAt?: Date;
   approvedByMemberId?: string;
   approvedAt?: Date;
+  lastNudgeStage?: "1h" | "24h" | null;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { inMemoryDb } from "@/db";
+import { store } from "@/db";
 import { transitionMemberState } from "@/lib/onboarding/state-machine";
 import { processKycWebhookPayload } from "@/lib/jobs/workers";
 import { processResumeToken } from "@/lib/onboarding/resume";
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
       const memberId = "mem_applicant_202";
       const agingMemberId = "mem_aging_303";
 
-      await inMemoryDb.insert("chamas", {
+      await store.insert("chamas", {
         id: chamaId,
         name: "Tumaini Women Chama",
         slug: "tumaini-women-chama",
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
       });
 
       // Seed Secretary / Founder
-      await inMemoryDb.insert("members", {
+      await store.insert("members", {
         id: founderId,
         chamaId,
         fullName: "Wanjiku Wanjohi (Chairperson)",
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       });
 
       // Seed Candidate in Governance Approval Queue
-      await inMemoryDb.insert("members", {
+      await store.insert("members", {
         id: memberId,
         chamaId,
         fullName: "Amina Mohamed",
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
 
       // Seed Aging Candidate (>48h in queue flag)
       const date3DaysAgo = new Date(Date.now() - 72 * 60 * 60 * 1000);
-      await inMemoryDb.insert("members", {
+      await store.insert("members", {
         id: agingMemberId,
         chamaId,
         fullName: "Kiplagat Cheruiyot",
@@ -89,7 +89,7 @@ export async function POST(req: Request) {
       });
 
       // Seed Invite Code
-      await inMemoryDb.insert("invites", {
+      await store.insert("invites", {
         id: "inv_101",
         chamaId,
         phone: "+254700000000",
@@ -120,12 +120,12 @@ export async function POST(req: Request) {
     }
 
     if (action === "get_audit_logs") {
-      const logs = await inMemoryDb.select("auditLog");
+      const logs = await store.select("auditLog");
       return NextResponse.json({ success: true, count: logs.length, logs });
     }
 
     if (action === "get_all_state") {
-      return NextResponse.json({ success: true, data: inMemoryDb.getAllData() });
+      return NextResponse.json({ success: true, data: store.getAllData() });
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });

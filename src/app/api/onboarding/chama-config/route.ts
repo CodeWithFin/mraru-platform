@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { inMemoryDb } from "@/db";
+import { store } from "@/db";
 import { transitionMemberState } from "@/lib/onboarding/state-machine";
 
 export async function POST(req: Request) {
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Required fields missing" }, { status: 400 });
     }
 
-    const member = await inMemoryDb.findOne("members", (m) => m.id === memberId);
+    const member = await store.findOne("members", (m) => m.id === memberId);
     if (!member) {
       return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     const chamaId = `chama_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
     // Create Chama
-    const chama = await inMemoryDb.insert("chamas", {
+    const chama = await store.insert("chamas", {
       id: chamaId,
       name: chamaName,
       slug: chamaSlug,
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
 5. PENALTIES: Late monthly contributions attract a 5% monthly fee.
 `;
 
-    await inMemoryDb.insert("constitutions", {
+    await store.insert("constitutions", {
       id: constId,
       chamaId,
       version: 1,
@@ -65,7 +65,7 @@ export async function POST(req: Request) {
     });
 
     // Update Member with Chama ID
-    await inMemoryDb.update("members", (m) => m.id === memberId, {
+    await store.update("members", (m) => m.id === memberId, {
       chamaId,
       profileImageUrl: logoUrl || member.profileImageUrl,
     });

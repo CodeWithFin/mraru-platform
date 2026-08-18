@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { inMemoryDb } from "@/db";
+import { store } from "@/db";
 
 // In-memory rate limiting tracker: { phone: { count, resetAt, lockedUntil } }
 const rateLimitMap: Record<string, { count: number; resetAt: number; attempts: number; lockedUntil?: number }> = {};
@@ -95,7 +95,7 @@ export async function sendOtpSms(phone: string, purpose: "signup" | "login" | "p
 
   // Save OTP record
   const otpId = `otp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-  await inMemoryDb.insert("otpVerifications", {
+  await store.insert("otpVerifications", {
     id: otpId,
     phone: normPhone,
     originalPhone: phone,
@@ -132,7 +132,7 @@ export async function verifyOtpCode(phone: string, inputCode: string) {
     };
   }
 
-  let otps = await inMemoryDb.select("otpVerifications", (o) => {
+  let otps = await store.select("otpVerifications", (o) => {
     if (o.verifiedAt) return false;
     const normRecordPhone = normalizePhone(o.phone);
     return normRecordPhone === normPhone || o.phone === phone || o.originalPhone === phone;
@@ -140,7 +140,7 @@ export async function verifyOtpCode(phone: string, inputCode: string) {
 
   // Fallback: If no match by exact phone string, check recent unverified OTPs in database
   if (otps.length === 0) {
-    otps = await inMemoryDb.select("otpVerifications", (o) => !o.verifiedAt);
+    otps = await store.select("otpVerifications", (o) => !o.verifiedAt);
   }
 
   let latestOtp = otps.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
@@ -178,7 +178,7 @@ export async function verifyOtpCode(phone: string, inputCode: string) {
   }
 
   // Success
-  await inMemoryDb.update("otpVerifications", (o) => o.id === latestOtp.id, {
+  await store.update("otpVerifications", (o) => o.id === latestOtp.id, {
     verifiedAt: new Date(),
   });
   delete rateLimitMap[normPhone];
