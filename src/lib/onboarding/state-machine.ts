@@ -1,4 +1,4 @@
-import { inMemoryDb } from "@/db";
+import { store } from "@/db";
 import { OnboardingState } from "@/lib/types";
 
 export const VALID_TRANSITIONS: Record<string, string[]> = {
@@ -23,7 +23,7 @@ export async function transitionMemberState(
   actorId?: string,
   metadata?: Record<string, any>
 ) {
-  const member = await inMemoryDb.findOne("members", (m) => m.id === memberId);
+  const member = await store.findOne("members", (m) => m.id === memberId);
   if (!member) {
     throw new Error(`Member ${memberId} not found`);
   }
@@ -38,7 +38,7 @@ export async function transitionMemberState(
   }
 
   const beforeState = { ...member };
-  const updatedMember = await inMemoryDb.update(
+  const updatedMember = await store.update(
     "members",
     (m) => m.id === memberId,
     {
@@ -48,7 +48,7 @@ export async function transitionMemberState(
   );
 
   // Write audit log
-  await inMemoryDb.insert("auditLog", {
+  await store.insert("auditLog", {
     id: `audit_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
     chamaId: member.chamaId,
     actorMemberId: actorId || memberId,

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { inMemoryDb } from "@/db";
+import { store } from "@/db";
 import { createDiditKycSession } from "@/lib/integrations/didit";
 import { transitionMemberState } from "@/lib/onboarding/state-machine";
 
@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Member ID required" }, { status: 400 });
     }
 
-    const member = await inMemoryDb.findOne("members", (m) => m.id === memberId);
+    const member = await store.findOne("members", (m) => m.id === memberId);
     if (!member) {
       return NextResponse.json({ error: "Member record not found" }, { status: 404 });
     }
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
 
     // Save session.session_id -> members.kyc_session_id
     // Set onboarding_state = 'kyc_pending', kyc_status = 'pending_review'
-    await inMemoryDb.update("members", (m) => m.id === memberId, {
+    await store.update("members", (m) => m.id === memberId, {
       kycSessionId: session.session_id,
       kycStatus: "pending_review",
     });

@@ -1,4 +1,4 @@
-import { inMemoryDb } from "@/db";
+import { store } from "@/db";
 import { transitionMemberState } from "@/lib/onboarding/state-machine";
 import { fetchDiditSessionDecision } from "@/lib/integrations/didit";
 import { sendOtpSms } from "@/lib/integrations/tilil";
@@ -8,7 +8,7 @@ export async function processKycWebhookPayload(payload: any) {
   const sessionId = payload.session_id;
   const memberId = payload.vendor_data;
 
-  const member = await inMemoryDb.findOne("members", (m) => m.id === memberId || m.kycSessionId === sessionId);
+  const member = await store.findOne("members", (m) => m.id === memberId || m.kycSessionId === sessionId);
   if (!member) {
     console.warn(`[KYC WORKER] Member not found for session ${sessionId}`);
     return;
@@ -26,33 +26,33 @@ export async function processKycWebhookPayload(payload: any) {
     retriable: payload.retriable ?? true,
   };
 
-  await inMemoryDb.update("members", (m) => m.id === member.id, {
+  await store.update("members", (m) => m.id === member.id, {
     kycDecisionSummary: decisionSummary,
   });
 
   if (status === "Approved") {
-    await inMemoryDb.update("members", (m) => m.id === member.id, { kycStatus: "approved" });
+    await store.update("members", (m) => m.id === member.id, { kycStatus: "approved" });
     await transitionMemberState(member.id, "constitution_pending", "didit_system");
     await sendOtpSms(member.phone, "signup");
     console.log(`[KYC APPROVED] Member ${member.id} advanced to constitution_pending`);
   } else if (status === "Declined" || status === "Rejected") {
-    await inMemoryDb.update("members", (m) => m.id === member.id, { kycStatus: "rejected" });
+    await store.update("members", (m) => m.id === member.id, { kycStatus: "rejected" });
     await transitionMemberState(member.id, "kyc_declined", "didit_system");
     console.log(`[KYC DECLINED] Member ${member.id} moved to kyc_declined`);
   } else if (status === "In Review" || status === "InReview") {
-    await inMemoryDb.update("members", (m) => m.id === member.id, { kycStatus: "in_review" });
+    await store.update("members", (m) => m.id === member.id, { kycStatus: "in_review" });
     await transitionMemberState(member.id, "kyc_in_review", "didit_system");
     console.log(`[KYC IN REVIEW] Member ${member.id} routed to Secretary queue`);
   } else if (status === "Abandoned") {
-    await inMemoryDb.update("members", (m) => m.id === member.id, { kycStatus: "abandoned" });
+    await store.update("members", (m) => m.id === member.id, { kycStatus: "abandoned" });
   } else if (status === "Expired") {
-    await inMemoryDb.update("members", (m) => m.id === member.id, { kycStatus: "expired" });
+    await store.update("members", (m) => m.id === member.id, { kycStatus: "expired" });
   }
 }
 
 export async function runIdleNudgeScanner() {
   const now = Date.now();
-  const allMembers = await inMemoryDb.select("members");
+  const allMembers = await store.select("members");
 
   for (const member of allMembers) {
     if (member.onboardingState === "active" || member.onboardingState === "abandoned") continue;

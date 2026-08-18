@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { verifyDiditWebhookSignature } from "@/lib/integrations/didit";
 import { addJob } from "@/lib/jobs/queues";
 import { processKycWebhookPayload } from "@/lib/jobs/workers";
-import { inMemoryDb } from "@/db";
+import { store } from "@/db";
 
 export async function POST(req: Request) {
   try {
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
     // Log raw payload into webhook_events table
     const eventId = `wh_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    await inMemoryDb.insert("webhookEvents", {
+    await store.insert("webhookEvents", {
       id: eventId,
       source: "didit",
       eventId: payload.event_id || payload.session_id,

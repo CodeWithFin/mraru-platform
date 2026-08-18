@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { inMemoryDb } from "@/db";
+import { store } from "@/db";
 import { transitionMemberState } from "@/lib/onboarding/state-machine";
 
 export async function POST(req: Request) {
@@ -9,14 +9,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Member ID required" }, { status: 400 });
     }
 
-    const member = await inMemoryDb.findOne("members", (m) => m.id === memberId);
+    const member = await store.findOne("members", (m) => m.id === memberId);
     if (!member) {
       return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
     // Save acceptance record
     const acceptId = `accept_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    await inMemoryDb.insert("constitutionAcceptances", {
+    await store.insert("constitutionAcceptances", {
       id: acceptId,
       memberId,
       constitutionId: constitutionId || "const_default",

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { inMemoryDb } from "@/db";
+import { store } from "@/db";
 import { transitionMemberState } from "@/lib/onboarding/state-machine";
 import { sendOtpSms } from "@/lib/integrations/tilil";
 
@@ -11,14 +11,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid request parameters" }, { status: 400 });
     }
 
-    const member = await inMemoryDb.findOne("members", (m) => m.id === memberId);
+    const member = await store.findOne("members", (m) => m.id === memberId);
     if (!member) {
       return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
     if (action === "approve") {
       // Approve = one tap -> active, welcome SMS fires
-      await inMemoryDb.update("members", (m) => m.id === memberId, {
+      await store.update("members", (m) => m.id === memberId, {
         status: "active",
         approvedByMemberId: secretaryMemberId || "secretary_admin",
         approvedAt: new Date(),
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
       // Activate Chama status if this is founder
       if (member.isFounder && member.chamaId) {
-        await inMemoryDb.update("chamas", (c) => c.id === member.chamaId, {
+        await store.update("chamas", (c) => c.id === member.chamaId, {
           status: "active",
         });
       }

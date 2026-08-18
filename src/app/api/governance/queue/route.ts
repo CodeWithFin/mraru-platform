@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { inMemoryDb } from "@/db";
+import { store } from "@/db";
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const chamaId = searchParams.get("chamaId");
 
-    const allMembers = await inMemoryDb.select("members", (m) => {
+    const allMembers = await store.select("members", (m) => {
       const stateMatch =
         m.kycStatus === "in_review" ||
         m.onboardingState === "kyc_in_review" ||
