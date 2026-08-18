@@ -64,7 +64,7 @@ export function ErrorLookupTable() {
   return (
     <div className="bg-neutral-50 border border-neutral-100 rounded-[2rem] p-6 shadow-sm font-sans text-neutral-900">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-full bg-[#ccf32f] text-black flex items-center justify-center font-bold">
+        <div className="w-10 h-10 rounded-full bg-[#C8F169] text-black flex items-center justify-center font-bold">
           <AlertTriangle className="w-5 h-5 text-black" />
         </div>
         <div>
@@ -86,14 +86,14 @@ export function ErrorLookupTable() {
             {errorMap.map((err, idx) => (
               <tr key={idx} className="hover:bg-white transition-colors">
                 <td className="py-3.5 px-4 font-semibold text-neutral-900 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#ccf32f]"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#C8F169]"></span>
                   {err.failure}
                 </td>
                 <td className="py-3.5 px-4 text-neutral-800 font-mono bg-white rounded border border-neutral-100">
                   {err.message}
                 </td>
                 <td className="py-3.5 px-4 text-neutral-600">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#ccf32f]/30 text-black font-semibold border border-[#ccf32f]/50">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C8F169]/30 text-black font-semibold border border-[#C8F169]/50">
                     <RefreshCw className="w-3 h-3" />
                     {err.recovery}
                   </span>

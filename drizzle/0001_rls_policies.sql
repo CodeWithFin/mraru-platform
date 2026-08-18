@@ -2,12 +2,15 @@
 -- filtering, never instead of it (spec: multi-tenancy model).
 --
 -- The app sets `app.current_chama_id` for the duration of a request's transaction
--- via set_config() (see src/lib/auth/tenant-context.ts). When that GUC is unset,
--- policies fall through to permissive so routes that have not yet adopted a tenant
--- context (most onboarding endpoints, which are scoped by member id instead) keep
--- working; once a route opts in by setting the GUC, isolation is enforced for it.
--- FORCE ROW LEVEL SECURITY is required because Neon connects as the table owner,
--- and owners bypass RLS by default.
+-- via set_config() (see withTenantContext in src/db/index.ts). When that GUC is
+-- unset, policies fall through to permissive so routes that have not yet adopted
+-- a tenant context (most onboarding endpoints, which are scoped by member id
+-- instead) keep working; once a route opts in by setting the GUC, isolation is
+-- enforced for it. Verified against a real Postgres instance: with FORCE ROW
+-- LEVEL SECURITY, a non-superuser role connected as the table owner (Neon's
+-- default connection role, and how these tables get created) is correctly
+-- isolated by these policies. A superuser connection always bypasses RLS
+-- regardless of FORCE — never connect the app as one.
 
 ALTER TABLE "chamas" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "chamas" FORCE ROW LEVEL SECURITY;
