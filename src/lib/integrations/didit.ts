@@ -62,7 +62,16 @@ export function verifyDiditWebhookSignature(rawBody: string, signatureHeader: st
     .update(rawBody)
     .digest("hex");
 
+  if (expected.length !== signatureHeader.length) return false;
   return crypto.timingSafeEqual(Buffer.from(signatureHeader), Buffer.from(expected));
+}
+
+// Test-only: signs a payload the same way Didit would, so the KYC simulator
+// (src/app/onboarding/kyc-simulator) can exercise the real webhook endpoint's
+// signature check end-to-end instead of bypassing it. Never used for anything
+// Mraru receives from the real Didit service.
+export function signDiditWebhookPayload(rawBody: string): string {
+  return crypto.createHmac("sha256", DIDIT_WEBHOOK_SECRET).update(rawBody).digest("hex");
 }
 
 export async function fetchDiditSessionDecision(sessionId: string) {

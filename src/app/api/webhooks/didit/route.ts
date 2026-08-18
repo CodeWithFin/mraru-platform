@@ -9,10 +9,10 @@ export async function POST(req: Request) {
     const rawBody = await req.text();
     const signature = req.headers.get("x-signature-v2");
 
-    // Signature verification (in demo mode with mock signature headers, allow bypass for testing)
-    const isValidSignature =
-      signature === "mock_signature" ||
-      verifyDiditWebhookSignature(rawBody, signature);
+    // Webhook testing goes through POST /api/simulator (action:
+    // "simulate_didit_webhook"), which calls the worker directly — this
+    // endpoint must never accept an unsigned or spoofed signature header.
+    const isValidSignature = verifyDiditWebhookSignature(rawBody, signature);
 
     let payload: any;
     try {

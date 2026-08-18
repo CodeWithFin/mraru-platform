@@ -19,11 +19,10 @@ function KycSimulatorContent() {
 
     setTimeout(async () => {
       try {
-        await fetch("/api/webhooks/didit", {
+        await fetch("/api/simulator/didit-webhook", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "x-signature-v2": "mock_signature",
           },
           body: JSON.stringify({
             session_id: sessionId,
