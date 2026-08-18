@@ -187,7 +187,7 @@ export function TestChecklistRunner() {
           <span className="text-xs font-mono uppercase tracking-widest text-neutral-500 font-bold">
             SECTION 11 AUTOMATED TEST SUITE
           </span>
-          <h2 className="text-2xl font-bold text-neutral-900 mt-1 tracking-tight">Pre-Launch Checklist Runner</h2>
+          <h2 className="font-display text-2xl font-extrabold text-neutral-900 mt-1 tracking-tight">Pre-Launch Checklist Runner</h2>
           <p className="text-xs text-neutral-500 mt-1">
             Automated verification of all 12 spec requirements before real chama onboarding
           </p>
@@ -201,7 +201,7 @@ export function TestChecklistRunner() {
           <button
             onClick={runAllTests}
             disabled={runningAll}
-            className="bg-black text-white font-medium px-6 py-2.5 rounded-full text-xs hover:bg-neutral-800 transition-transform hover:scale-105 flex items-center gap-2 disabled:opacity-50 shadow-md"
+            className="bg-mraru-forest text-white font-medium px-6 py-2.5 rounded-full text-xs transition-transform hover:scale-[1.03] flex items-center gap-2 disabled:opacity-50 shadow-md"
           >
             {runningAll ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5 fill-white text-white" />}
             {runningAll ? "Running Suite..." : "Run Full Test Suite"}

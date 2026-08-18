@@ -183,7 +183,7 @@ export function GovernanceQueue() {
           <span className="text-xs font-mono uppercase tracking-widest text-neutral-500 font-bold">
             SECTION 9 GOVERNANCE MODULE
           </span>
-          <h2 className="text-xl font-bold text-neutral-900 mt-1 tracking-tight">Secretary / Chairperson Sign In</h2>
+          <h2 className="font-display text-xl font-extrabold text-neutral-900 mt-1 tracking-tight">Secretary / Chairperson Sign In</h2>
           <p className="text-xs text-neutral-500 mt-1">
             Governance decisions require a role-verified session — sign in with your registered phone.
           </p>
@@ -217,7 +217,7 @@ export function GovernanceQueue() {
         <button
           onClick={otpSent ? verifyLogin : sendLoginOtp}
           disabled={loginBusy || !loginPhone || (otpSent && loginCode.length < 6)}
-          className="w-full bg-black text-white font-semibold py-2.5 rounded-full text-sm hover:bg-neutral-800 transition-transform hover:scale-105 disabled:opacity-40"
+          className="w-full bg-mraru-forest text-white font-semibold py-2.5 rounded-full text-sm transition-transform hover:scale-[1.03] disabled:opacity-40"
         >
           {loginBusy ? "Please wait..." : otpSent ? "Verify & Sign In" : "Send Code"}
         </button>
@@ -233,7 +233,7 @@ export function GovernanceQueue() {
           <span className="text-xs font-mono uppercase tracking-widest text-neutral-500 font-bold">
             SECTION 9 GOVERNANCE MODULE
           </span>
-          <h2 className="text-2xl font-bold text-neutral-900 mt-1 tracking-tight">Secretary / Chairperson Approval Queue</h2>
+          <h2 className="font-display text-2xl font-extrabold text-neutral-900 mt-1 tracking-tight">Secretary / Chairperson Approval Queue</h2>
           <p className="text-xs text-neutral-500 mt-1">
             Review candidates awaiting membership clearance. Aging indicator flags items &gt;48h.
           </p>
@@ -297,7 +297,7 @@ export function GovernanceQueue() {
                     {/* Candidate */}
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-neutral-900 text-white flex items-center justify-center font-bold">
+                        <div className="w-9 h-9 rounded-full bg-mraru-forest text-white flex items-center justify-center font-bold">
                           {item.fullName.charAt(0)}
                         </div>
                         <div>
@@ -358,7 +358,7 @@ export function GovernanceQueue() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleApprove(item.id)}
-                          className="bg-black text-white font-medium px-4 py-2 rounded-full text-xs hover:bg-neutral-800 transition-transform hover:scale-105 flex items-center gap-1.5 shadow-sm"
+                          className="bg-mraru-forest text-white font-medium px-4 py-2 rounded-full text-xs transition-transform hover:scale-[1.03] flex items-center gap-1.5 shadow-sm"
                         >
                           <CheckCircle className="w-3.5 h-3.5 text-[#C8F169]" />
                           Approve
