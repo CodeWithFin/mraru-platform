@@ -344,7 +344,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
     <div className="max-w-4xl mx-auto space-y-8 font-sans text-neutral-900">
       {/* Toast Alert */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#ccf32f] text-black px-5 py-3 rounded-full font-semibold shadow-2xl flex items-center gap-2 border border-black/10 animate-bounce">
+        <div className="fixed bottom-6 right-6 z-50 bg-[#C8F169] text-black px-5 py-3 rounded-full font-semibold shadow-2xl flex items-center gap-2 border border-black/10 animate-bounce">
           <Sparkles className="w-4 h-4 fill-black" />
           <span>{toastMessage}</span>
         </div>
@@ -362,7 +362,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
             </h2>
             <p className="text-xs text-neutral-500 mt-1">
               Current Driving Field:{" "}
-              <span className="font-mono text-black font-semibold bg-[#ccf32f]/40 px-2.5 py-0.5 rounded-full border border-[#ccf32f]/60">
+              <span className="font-mono text-black font-semibold bg-[#C8F169]/40 px-2.5 py-0.5 rounded-full border border-[#C8F169]/60">
                 {onboardingState}
               </span>
             </p>
@@ -392,7 +392,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
               }}
               className={`px-4 py-2 rounded-full text-xs font-medium transition-all ${
                 path === "member"
-                  ? "bg-[#ccf32f] text-black font-semibold shadow-sm"
+                  ? "bg-[#C8F169] text-black font-semibold shadow-sm"
                   : "text-neutral-500 hover:text-black"
               }`}
             >
@@ -430,7 +430,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
         {onboardingState === "started" || onboardingState === "phone_verified" ? (
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#ccf32f] text-black flex items-center justify-center font-bold text-lg shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-[#C8F169] text-black flex items-center justify-center font-bold text-lg shadow-sm">
                 1
               </div>
               <div>
@@ -465,7 +465,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                       type="text"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full bg-white border border-neutral-200 rounded-2xl py-3 pl-10 pr-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#ccf32f] focus:ring-2 focus:ring-[#ccf32f]/20"
+                      className="w-full bg-white border border-neutral-200 rounded-2xl py-3 pl-10 pr-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#C8F169] focus:ring-2 focus:ring-[#C8F169]/20"
                       placeholder="+254712345678"
                     />
                   </div>
@@ -480,7 +480,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                       type="text"
                       value={inviteCode}
                       onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                      className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm font-mono text-neutral-900 font-semibold focus:outline-none focus:border-[#ccf32f] focus:ring-2 focus:ring-[#ccf32f]/20"
+                      className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm font-mono text-neutral-900 font-semibold focus:outline-none focus:border-[#C8F169] focus:ring-2 focus:ring-[#C8F169]/20"
                       placeholder="TUMAINI-2026"
                     />
                   </div>
@@ -504,7 +504,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                   </div>
                   {demoOtp && (
                     <p className="font-mono text-black font-semibold pt-1">
-                      [Demo Code: <strong className="text-[#ccf32f] bg-black px-1.5 py-0.5 rounded">{demoOtp}</strong>]
+                      [Demo Code: <strong className="text-[#C8F169] bg-black px-1.5 py-0.5 rounded">{demoOtp}</strong>]
                     </p>
                   )}
                 </div>
@@ -518,7 +518,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                     maxLength={6}
                     value={otpCode}
                     onChange={(e) => setOtpCode(e.target.value)}
-                    className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-center text-xl tracking-[0.5em] font-mono text-neutral-900 font-bold focus:outline-none focus:border-[#ccf32f] focus:ring-2 focus:ring-[#ccf32f]/20"
+                    className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-center text-xl tracking-[0.5em] font-mono text-neutral-900 font-bold focus:outline-none focus:border-[#C8F169] focus:ring-2 focus:ring-[#C8F169]/20"
                     placeholder="000000"
                   />
                 </div>
@@ -526,7 +526,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                 <button
                   onClick={handleVerifyOtp}
                   disabled={loading || lockoutTimer > 0}
-                  className="w-full bg-[#ccf32f] text-black font-semibold py-3.5 rounded-full hover:bg-[#bce325] transition-transform hover:scale-[1.01] flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm"
+                  className="w-full bg-[#C8F169] text-black font-semibold py-3.5 rounded-full hover:bg-[#b4e150] transition-transform hover:scale-[1.01] flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm"
                 >
                   {loading ? "Verifying..." : "Verify Code & Proceed"}
                   <CheckCircle className="w-4 h-4" />
@@ -540,7 +540,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
         {onboardingState === "chama_config_pending" && path === "founder" ? (
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#ccf32f] text-black flex items-center justify-center font-bold text-lg shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-[#C8F169] text-black flex items-center justify-center font-bold text-lg shadow-sm">
                 2
               </div>
               <div>
@@ -556,7 +556,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                   type="text"
                   value={chamaName}
                   onChange={(e) => setChamaName(e.target.value)}
-                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#ccf32f]"
+                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#C8F169]"
                 />
               </div>
 
@@ -566,7 +566,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                   type="text"
                   value={county}
                   onChange={(e) => setCounty(e.target.value)}
-                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#ccf32f]"
+                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#C8F169]"
                 />
               </div>
 
@@ -575,7 +575,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                 <select
                   value={chamaType}
                   onChange={(e) => setChamaType(e.target.value)}
-                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#ccf32f]"
+                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#C8F169]"
                 >
                   <option>Investment & Savings</option>
                   <option>Merry-Go-Round</option>
@@ -592,7 +592,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                   type="number"
                   value={minContribution}
                   onChange={(e) => setMinContribution(Number(e.target.value))}
-                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#ccf32f]"
+                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#C8F169]"
                 />
               </div>
             </div>
@@ -612,7 +612,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
         {onboardingState === "details_submitted" ? (
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#ccf32f] text-black flex items-center justify-center font-bold text-lg shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-[#C8F169] text-black flex items-center justify-center font-bold text-lg shadow-sm">
                 3
               </div>
               <div>
@@ -637,7 +637,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#ccf32f]"
+                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#C8F169]"
                 />
               </div>
 
@@ -647,7 +647,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                   type="text"
                   value={nationalId}
                   onChange={(e) => setNationalId(e.target.value)}
-                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#ccf32f]"
+                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#C8F169]"
                 />
               </div>
 
@@ -657,7 +657,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#ccf32f]"
+                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#C8F169]"
                 />
               </div>
 
@@ -667,7 +667,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                   type="text"
                   value={nextOfKinName}
                   onChange={(e) => setNextOfKinName(e.target.value)}
-                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#ccf32f]"
+                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#C8F169]"
                 />
               </div>
 
@@ -677,7 +677,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                   type="text"
                   value={nextOfKinPhone}
                   onChange={(e) => setNextOfKinPhone(e.target.value)}
-                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#ccf32f]"
+                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#C8F169]"
                 />
               </div>
 
@@ -687,7 +687,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                   type="text"
                   value={nextOfKinRelationship}
                   onChange={(e) => setNextOfKinRelationship(e.target.value)}
-                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#ccf32f]"
+                  className="w-full bg-white border border-neutral-200 rounded-2xl py-3 px-4 text-sm text-neutral-900 font-medium focus:outline-none focus:border-[#C8F169]"
                 />
               </div>
             </div>
@@ -698,7 +698,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                 <img
                   src={profileImageUrl}
                   alt="Profile"
-                  className="w-12 h-12 rounded-full object-cover border-2 border-[#ccf32f]"
+                  className="w-12 h-12 rounded-full object-cover border-2 border-[#C8F169]"
                 />
                 <div>
                   <p className="text-xs font-semibold text-neutral-900">Profile Photo Upload (ImageKit)</p>
@@ -733,7 +733,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
         onboardingState === "kyc_declined" ? (
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#ccf32f] text-black flex items-center justify-center font-bold text-lg shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-[#C8F169] text-black flex items-center justify-center font-bold text-lg shadow-sm">
                 4
               </div>
               <div>
@@ -751,7 +751,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
 
               <div className="flex items-center justify-between">
                 <span className="text-xs text-neutral-500 font-medium">KYC Status:</span>
-                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#ccf32f]/40 text-black border border-[#ccf32f]/60 uppercase">
+                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#C8F169]/40 text-black border border-[#C8F169]/60 uppercase">
                   {kycStatus}
                 </span>
               </div>
@@ -786,7 +786,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
                     href={kycSessionUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-full bg-[#ccf32f] text-black font-semibold py-3.5 rounded-full flex items-center justify-center gap-2 hover:bg-[#bce325] transition-all shadow-sm"
+                    className="w-full bg-[#C8F169] text-black font-semibold py-3.5 rounded-full flex items-center justify-center gap-2 hover:bg-[#b4e150] transition-all shadow-sm"
                   >
                     <span>Launch Didit Hosted KYC Window</span>
                     <ExternalLink className="w-4 h-4" />
@@ -828,7 +828,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
         {onboardingState === "constitution_pending" ? (
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#ccf32f] text-black flex items-center justify-center font-bold text-lg shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-[#C8F169] text-black flex items-center justify-center font-bold text-lg shadow-sm">
                 5
               </div>
               <div>
@@ -867,7 +867,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
             <button
               onClick={handleAcceptConstitution}
               disabled={loading || !hasScrolledConstitution}
-              className="w-full bg-[#ccf32f] text-black font-semibold py-3.5 rounded-full hover:bg-[#bce325] transition-transform hover:scale-[1.01] flex items-center justify-center gap-2 disabled:opacity-40 shadow-sm"
+              className="w-full bg-[#C8F169] text-black font-semibold py-3.5 rounded-full hover:bg-[#b4e150] transition-transform hover:scale-[1.01] flex items-center justify-center gap-2 disabled:opacity-40 shadow-sm"
             >
               {hasScrolledConstitution ? "I Accept Chama Constitution" : "Scroll down to enable Accept button"}
               <CheckCircle className="w-4 h-4" />
@@ -878,7 +878,7 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
         {/* STEP 6: Governance Approval Pending */}
         {onboardingState === "awaiting_governance_approval" ? (
           <div className="space-y-6 text-center py-6">
-            <div className="w-16 h-16 rounded-full bg-[#ccf32f] text-black mx-auto flex items-center justify-center shadow-md animate-pulse">
+            <div className="w-16 h-16 rounded-full bg-[#C8F169] text-black mx-auto flex items-center justify-center shadow-md animate-pulse">
               <Clock className="w-8 h-8" />
             </div>
             <div>
@@ -918,12 +918,12 @@ export function OnboardingWizard({ onStateChange }: OnboardingWizardProps) {
         {/* STEP 7: Active Member Success Dashboard */}
         {onboardingState === "active" ? (
           <div className="space-y-6 text-center py-6">
-            <div className="w-20 h-20 rounded-full bg-[#ccf32f] text-black mx-auto flex items-center justify-center shadow-xl">
+            <div className="w-20 h-20 rounded-full bg-[#C8F169] text-black mx-auto flex items-center justify-center shadow-xl">
               <Sparkles className="w-10 h-10 fill-black" />
             </div>
 
             <div>
-              <span className="px-3 py-1 rounded-full bg-[#ccf32f]/40 text-black text-xs font-mono font-bold border border-[#ccf32f]/60 uppercase">
+              <span className="px-3 py-1 rounded-full bg-[#C8F169]/40 text-black text-xs font-mono font-bold border border-[#C8F169]/60 uppercase">
                 Active Member
               </span>
               <h3 className="text-3xl font-bold text-neutral-900 tracking-tight mt-3">Welcome to Mraru Chama!</h3>

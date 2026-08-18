@@ -47,7 +47,7 @@ function KycSimulatorContent() {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-[#ccf32f] text-black flex items-center justify-center font-bold">
+          <div className="w-8 h-8 rounded-full bg-[#C8F169] text-black flex items-center justify-center font-bold">
             <Shield className="w-4 h-4 text-black" />
           </div>
           <div>
@@ -62,7 +62,7 @@ function KycSimulatorContent() {
 
       {step === "id_doc" && (
         <div className="space-y-6 text-center">
-          <div className="w-16 h-16 rounded-full bg-[#ccf32f] text-black mx-auto flex items-center justify-center shadow-md">
+          <div className="w-16 h-16 rounded-full bg-[#C8F169] text-black mx-auto flex items-center justify-center shadow-md">
             <FileCheck className="w-8 h-8" />
           </div>
           <div>
@@ -74,7 +74,7 @@ function KycSimulatorContent() {
 
           <button
             onClick={() => setStep("liveness")}
-            className="w-full bg-[#ccf32f] text-black font-semibold py-3.5 rounded-full hover:bg-[#bce325] transition-transform hover:scale-[1.01] flex items-center justify-center gap-2 shadow-sm"
+            className="w-full bg-[#C8F169] text-black font-semibold py-3.5 rounded-full hover:bg-[#b4e150] transition-transform hover:scale-[1.01] flex items-center justify-center gap-2 shadow-sm"
           >
             <span>Capture ID Document</span>
             <ArrowRight className="w-4 h-4" />
@@ -84,7 +84,7 @@ function KycSimulatorContent() {
 
       {step === "liveness" && (
         <div className="space-y-6 text-center">
-          <div className="w-24 h-24 rounded-full bg-neutral-50 border-2 border-dashed border-[#ccf32f] mx-auto flex items-center justify-center relative overflow-hidden">
+          <div className="w-24 h-24 rounded-full bg-neutral-50 border-2 border-dashed border-[#C8F169] mx-auto flex items-center justify-center relative overflow-hidden">
             <Camera className="w-8 h-8 text-black animate-pulse" />
           </div>
           <div>
@@ -122,7 +122,7 @@ function KycSimulatorContent() {
 
       {step === "processing" && (
         <div className="space-y-6 text-center py-8">
-          <div className="w-12 h-12 border-4 border-[#ccf32f] border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <div className="w-12 h-12 border-4 border-[#C8F169] border-t-transparent rounded-full animate-spin mx-auto"></div>
           <div>
             <h3 className="text-base font-semibold text-neutral-900">Processing Verification & Signing HMAC Webhook...</h3>
             <p className="text-xs text-neutral-500 mt-1">Evaluating document OCR, face match, and liveness score...</p>

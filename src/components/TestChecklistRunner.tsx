@@ -218,7 +218,7 @@ export function TestChecklistRunner() {
           >
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono text-black font-bold uppercase tracking-wider bg-[#ccf32f]/40 px-2.5 py-0.5 rounded-full border border-[#ccf32f]/60">
+                <span className="text-[10px] font-mono text-black font-bold uppercase tracking-wider bg-[#C8F169]/40 px-2.5 py-0.5 rounded-full border border-[#C8F169]/60">
                   {test.category}
                 </span>
 

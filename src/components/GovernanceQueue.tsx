@@ -201,7 +201,7 @@ export function GovernanceQueue() {
           value={loginPhone}
           onChange={(e) => setLoginPhone(e.target.value)}
           disabled={otpSent}
-          className="w-full bg-white border border-neutral-200 rounded-full py-2.5 px-4 text-sm focus:outline-none focus:border-[#ccf32f] disabled:opacity-50"
+          className="w-full bg-white border border-neutral-200 rounded-full py-2.5 px-4 text-sm focus:outline-none focus:border-[#C8F169] disabled:opacity-50"
         />
 
         {otpSent && (
@@ -210,7 +210,7 @@ export function GovernanceQueue() {
             placeholder="6-digit code"
             value={loginCode}
             onChange={(e) => setLoginCode(e.target.value)}
-            className="w-full bg-white border border-neutral-200 rounded-full py-2.5 px-4 text-sm focus:outline-none focus:border-[#ccf32f]"
+            className="w-full bg-white border border-neutral-200 rounded-full py-2.5 px-4 text-sm focus:outline-none focus:border-[#C8F169]"
           />
         )}
 
@@ -247,7 +247,7 @@ export function GovernanceQueue() {
               placeholder="Search by name or phone..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="bg-white border border-neutral-200 rounded-full py-2 pl-9 pr-4 text-xs text-neutral-900 focus:outline-none focus:border-[#ccf32f]"
+              className="bg-white border border-neutral-200 rounded-full py-2 pl-9 pr-4 text-xs text-neutral-900 focus:outline-none focus:border-[#C8F169]"
             />
           </div>
 
@@ -360,7 +360,7 @@ export function GovernanceQueue() {
                           onClick={() => handleApprove(item.id)}
                           className="bg-black text-white font-medium px-4 py-2 rounded-full text-xs hover:bg-neutral-800 transition-transform hover:scale-105 flex items-center gap-1.5 shadow-sm"
                         >
-                          <CheckCircle className="w-3.5 h-3.5 text-[#ccf32f]" />
+                          <CheckCircle className="w-3.5 h-3.5 text-[#C8F169]" />
                           Approve
                         </button>
 
