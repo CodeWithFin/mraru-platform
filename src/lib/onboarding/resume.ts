@@ -1,8 +1,7 @@
 import jwt from "jsonwebtoken";
 import { store } from "@/db";
 import { createDiditKycSession } from "@/lib/integrations/didit";
-
-const JWT_SECRET = process.env.JWT_SECRET || "mraru_secret_key_onboarding_2026";
+import { JWT_SECRET } from "@/lib/auth/jwt-secret";
 
 export function generateResumeToken(memberId: string, expiresInDays = 7) {
   const expiresAt = new Date();

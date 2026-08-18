@@ -1,11 +1,19 @@
 import { NextResponse } from "next/server";
 import { store } from "@/db";
 import { transitionMemberState } from "@/lib/onboarding/state-machine";
-import { sendOtpSms } from "@/lib/integrations/tilil";
+import { sendTililSms } from "@/lib/integrations/tilil";
+import { requireRole } from "@/lib/auth/session";
+
+// A chama's very first member (the founder) has no Secretary/Chairperson yet
+// to approve them — that role IS the founder. Every later admission goes
+// through the normal role-checked path below.
+function isFounderBootstrap(member: any) {
+  return member.isFounder && member.onboardingState === "awaiting_governance_approval";
+}
 
 export async function POST(req: Request) {
   try {
-    const { memberId, action, secretaryMemberId, rejectionReason } = await req.json();
+    const { memberId, action, rejectionReason } = await req.json();
 
     if (!memberId || !action || !["approve", "reject"].includes(action)) {
       return NextResponse.json({ error: "Invalid request parameters" }, { status: 400 });
@@ -16,57 +24,92 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
+    let approverId = "founder_self_bootstrap";
+    if (!isFounderBootstrap(member)) {
+      // The person who initiates admission is never its sole approver — the
+      // caller must hold a Secretary/Chairperson session for this member's chama.
+      const auth = requireRole(req, ["secretary", "chairperson"]);
+      if (!auth.ok) {
+        return NextResponse.json({ error: auth.error }, { status: auth.status });
+      }
+      if (auth.claims.chamaId !== member.chamaId) {
+        return NextResponse.json(
+          { error: "You are not a governance approver for this chama" },
+          { status: 403 }
+        );
+      }
+      approverId = auth.claims.memberId;
+    }
+
+    const chamaId = member.chamaId;
+    if (!chamaId) {
+      return NextResponse.json({ error: "Member has no chama assigned" }, { status: 400 });
+    }
+
     if (action === "approve") {
-      // Approve = one tap -> active, welcome SMS fires
       await store.update("members", (m) => m.id === memberId, {
         status: "active",
-        approvedByMemberId: secretaryMemberId || "secretary_admin",
+        approvedByMemberId: approverId,
         approvedAt: new Date(),
       });
 
-      await transitionMemberState(memberId, "active", secretaryMemberId || "secretary_admin");
+      await transitionMemberState(memberId, "active", approverId);
 
-      // Activate Chama status if this is founder
-      if (member.isFounder && member.chamaId) {
-        await store.update("chamas", (c) => c.id === member.chamaId, {
-          status: "active",
-        });
+      // Chama cannot go active until a Treasurer and a Secretary have both
+      // been admitted — enforced here, not left to the frontend.
+      const chamaMembers = await store.select(
+        "members",
+        (m) => m.chamaId === chamaId && m.status === "active"
+      );
+      const hasTreasurer = chamaMembers.some((m) => m.role === "treasurer");
+      const hasSecretary = chamaMembers.some((m) => m.role === "secretary");
+
+      let chamaActivated = false;
+      if (hasTreasurer && hasSecretary) {
+        const chama = await store.findOne("chamas", (c) => c.id === chamaId);
+        if (chama && chama.status === "pending_setup") {
+          await store.update("chamas", (c) => c.id === chamaId, { status: "active" });
+          chamaActivated = true;
+        }
       }
 
-      console.log(`[TILIL SMS WELCOME] To: ${member.phone} -> "Welcome to Mraru! Your membership has been approved by your Chama Secretary."`);
+      await sendTililSms(
+        member.phone,
+        "Welcome to Mraru! Your membership has been approved by your Chama Secretary."
+      );
 
       return NextResponse.json({
         success: true,
         action: "approved",
         memberId,
         onboardingState: "active",
+        chamaActivated,
       });
     }
 
-    if (action === "reject") {
-      // Reject requires reason >= 10 chars mandatory
-      if (!rejectionReason || rejectionReason.trim().length < 10) {
-        return NextResponse.json(
-          { error: "Rejection reason is mandatory and must be at least 10 characters long." },
-          { status: 400 }
-        );
-      }
-
-      await transitionMemberState(memberId, "kyc_declined", secretaryMemberId || "secretary_admin", {
-        after: { rejectionReason },
-      });
-
-      console.log(
-        `[TILIL SMS REJECTION] To: ${member.phone} -> "Your Mraru membership application was reviewed by the Secretary. Decision notice: ${rejectionReason}"`
+    // action === "reject"
+    if (!rejectionReason || rejectionReason.trim().length < 10) {
+      return NextResponse.json(
+        { error: "Rejection reason is mandatory and must be at least 10 characters long." },
+        { status: 400 }
       );
-
-      return NextResponse.json({
-        success: true,
-        action: "rejected",
-        memberId,
-        rejectionReason,
-      });
     }
+
+    await transitionMemberState(memberId, "kyc_declined", approverId, {
+      after: { rejectionReason },
+    });
+
+    await sendTililSms(
+      member.phone,
+      `Your Mraru membership application was reviewed by the Secretary. Decision notice: ${rejectionReason}`
+    );
+
+    return NextResponse.json({
+      success: true,
+      action: "rejected",
+      memberId,
+      rejectionReason,
+    });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

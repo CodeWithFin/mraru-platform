@@ -13,10 +13,21 @@ import {
   MessageSquare,
 } from "lucide-react";
 
+const SESSION_TOKEN_KEY = "mraru_session_token";
+
 export function GovernanceQueue() {
   const [queue, setQueue] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [search, setSearch] = useState<string>("");
+
+  // Secretary/Chairperson session — governance decisions require a real role
+  // token now (server re-validates it), not a hardcoded member id.
+  const [token, setToken] = useState<string | null>(null);
+  const [loginPhone, setLoginPhone] = useState("");
+  const [loginCode, setLoginCode] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const [loginBusy, setLoginBusy] = useState(false);
 
   // Reject Modal state
   const [rejectingMember, setRejectingMember] = useState<any | null>(null);
@@ -24,13 +35,76 @@ export function GovernanceQueue() {
   const [rejectError, setRejectError] = useState<string>("");
   const [submitting, setSubmitting] = useState<boolean>(false);
 
+  useEffect(() => {
+    setToken(window.localStorage.getItem(SESSION_TOKEN_KEY));
+  }, []);
+
+  const authHeaders = (): Record<string, string> =>
+    token ? { Authorization: `Bearer ${token}` } : {};
+
+  const signOut = () => {
+    window.localStorage.removeItem(SESSION_TOKEN_KEY);
+    setToken(null);
+    setQueue([]);
+  };
+
+  const sendLoginOtp = async () => {
+    setLoginBusy(true);
+    setLoginError("");
+    try {
+      const res = await fetch("/api/auth/otp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: loginPhone }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setLoginError(data.error || "Could not send login code");
+        return;
+      }
+      setOtpSent(true);
+    } catch (err: any) {
+      setLoginError(err.message);
+    } finally {
+      setLoginBusy(false);
+    }
+  };
+
+  const verifyLogin = async () => {
+    setLoginBusy(true);
+    setLoginError("");
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: loginPhone, code: loginCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setLoginError(data.error || "Could not sign in");
+        return;
+      }
+      window.localStorage.setItem(SESSION_TOKEN_KEY, data.token);
+      setToken(data.token);
+      setOtpSent(false);
+      setLoginCode("");
+    } catch (err: any) {
+      setLoginError(err.message);
+    } finally {
+      setLoginBusy(false);
+    }
+  };
+
   const fetchQueue = async () => {
+    if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/governance/queue");
+      const res = await fetch("/api/governance/queue", { headers: authHeaders() });
       const data = await res.json();
       if (res.ok) {
         setQueue(data.queue || []);
+      } else if (res.status === 401 || res.status === 403) {
+        signOut();
       }
     } catch (err) {
       console.error(err);
@@ -40,22 +114,21 @@ export function GovernanceQueue() {
   };
 
   useEffect(() => {
-    fetchQueue();
-  }, []);
+    if (token) fetchQueue();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   const handleApprove = async (memberId: string) => {
     try {
       const res = await fetch("/api/governance/decision", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          memberId,
-          action: "approve",
-          secretaryMemberId: "sec_101",
-        }),
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ memberId, action: "approve" }),
       });
       if (res.ok) {
         fetchQueue();
+      } else if (res.status === 401 || res.status === 403) {
+        signOut();
       }
     } catch (err) {
       console.error(err);
@@ -74,11 +147,10 @@ export function GovernanceQueue() {
     try {
       const res = await fetch("/api/governance/decision", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({
           memberId: rejectingMember.id,
           action: "reject",
-          secretaryMemberId: "sec_101",
           rejectionReason,
         }),
       });
@@ -88,6 +160,7 @@ export function GovernanceQueue() {
         fetchQueue();
       } else {
         const data = await res.json();
+        if (res.status === 401 || res.status === 403) signOut();
         setRejectError(data.error);
       }
     } catch (err: any) {
@@ -102,6 +175,55 @@ export function GovernanceQueue() {
       item.fullName?.toLowerCase().includes(search.toLowerCase()) ||
       item.phone?.includes(search)
   );
+
+  if (!token) {
+    return (
+      <div className="max-w-sm mx-auto bg-neutral-50 border border-neutral-100 rounded-[2rem] p-6 sm:p-8 space-y-4 shadow-sm text-neutral-900 font-sans">
+        <div>
+          <span className="text-xs font-mono uppercase tracking-widest text-neutral-500 font-bold">
+            SECTION 9 GOVERNANCE MODULE
+          </span>
+          <h2 className="text-xl font-bold text-neutral-900 mt-1 tracking-tight">Secretary / Chairperson Sign In</h2>
+          <p className="text-xs text-neutral-500 mt-1">
+            Governance decisions require a role-verified session — sign in with your registered phone.
+          </p>
+        </div>
+
+        {loginError && (
+          <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-xl text-xs">
+            {loginError}
+          </div>
+        )}
+
+        <input
+          type="tel"
+          placeholder="Phone number (e.g. 0712345678)"
+          value={loginPhone}
+          onChange={(e) => setLoginPhone(e.target.value)}
+          disabled={otpSent}
+          className="w-full bg-white border border-neutral-200 rounded-full py-2.5 px-4 text-sm focus:outline-none focus:border-[#ccf32f] disabled:opacity-50"
+        />
+
+        {otpSent && (
+          <input
+            type="text"
+            placeholder="6-digit code"
+            value={loginCode}
+            onChange={(e) => setLoginCode(e.target.value)}
+            className="w-full bg-white border border-neutral-200 rounded-full py-2.5 px-4 text-sm focus:outline-none focus:border-[#ccf32f]"
+          />
+        )}
+
+        <button
+          onClick={otpSent ? verifyLogin : sendLoginOtp}
+          disabled={loginBusy || !loginPhone || (otpSent && loginCode.length < 6)}
+          className="w-full bg-black text-white font-semibold py-2.5 rounded-full text-sm hover:bg-neutral-800 transition-transform hover:scale-105 disabled:opacity-40"
+        >
+          {loginBusy ? "Please wait..." : otpSent ? "Verify & Sign In" : "Send Code"}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 text-neutral-900 font-sans">
@@ -135,6 +257,13 @@ export function GovernanceQueue() {
             title="Refresh queue"
           >
             <RefreshCw className="w-4 h-4 text-black" />
+          </button>
+
+          <button
+            onClick={signOut}
+            className="bg-white hover:bg-neutral-100 px-4 py-2.5 rounded-full border border-neutral-200 text-black text-xs font-semibold transition-colors shadow-sm"
+          >
+            Sign out
           </button>
         </div>
       </div>

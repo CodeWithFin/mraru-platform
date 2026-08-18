@@ -7,7 +7,11 @@ export const VALID_TRANSITIONS: Record<string, string[]> = {
   chama_config_pending: ["details_submitted"],
   details_submitted: ["kyc_pending"],
   kyc_pending: ["kyc_in_review", "kyc_declined", "kyc_approved", "abandoned"],
-  kyc_in_review: ["kyc_approved", "kyc_declined"],
+  // Secretary's exception queue can act on an in-review case directly
+  // (governance approval queue filters on kyc_status='in_review' too), so
+  // active/kyc_declined must be reachable from here, not only via the normal
+  // kyc_approved -> ... -> awaiting_governance_approval path.
+  kyc_in_review: ["kyc_approved", "kyc_declined", "active"],
   kyc_declined: ["kyc_pending"], // retriable: back to kyc_pending
   kyc_approved: ["constitution_pending"],
   constitution_pending: ["constitution_accepted"],
@@ -44,6 +48,9 @@ export async function transitionMemberState(
     {
       onboardingState: targetState,
       updatedAt: new Date(),
+      // A real state transition is genuine activity — clear any idle-nudge
+      // bookkeeping so a later idle period starts nudging from scratch.
+      lastNudgeStage: null,
     }
   );
 
