@@ -1,6 +1,6 @@
 import { drizzle, type NeonDatabase } from "drizzle-orm/neon-serverless";
 import { Pool } from "@neondatabase/serverless";
-import { eq, type Table } from "drizzle-orm";
+import { eq, sql, type Table } from "drizzle-orm";
 import * as schema from "./schema";
 
 export type TableName =
@@ -78,7 +78,7 @@ class MemoryStore implements Store {
     const list = this.tables[tableName] || [];
     const index = list.findIndex(filterFn);
     if (index !== -1) {
-      list[index] = { ...list[index], ...updates, updatedAt: new Date() };
+      list[index] = { ...list[index], ...updates, updatedAt: updates.updatedAt ?? new Date() };
       return list[index];
     }
     return null;
@@ -92,7 +92,10 @@ class MemoryStore implements Store {
 // Real persistence: every write lands in Neon Postgres via Drizzle so onboarding
 // state survives serverless cold starts and multiple instances (spec Part 4 + 6.8).
 class PostgresStore implements Store {
-  constructor(private db: NeonDatabase<typeof schema>) {}
+  // Accepts either the top-level NeonDatabase or a transaction handle from
+  // db.transaction() (see withTenantContext below) — both expose the same
+  // select/insert/update query-builder surface this class relies on.
+  constructor(private db: NeonDatabase<typeof schema> | any) {}
 
   async select(tableName: TableName, filterFn?: (row: any) => boolean) {
     const rows = await this.db.select().from(TABLES[tableName] as any);
@@ -117,7 +120,7 @@ class PostgresStore implements Store {
     if (!match) return null;
 
     const setValues = TABLES_WITH_UPDATED_AT[tableName]
-      ? { ...updates, updatedAt: new Date() }
+      ? { ...updates, updatedAt: updates.updatedAt ?? new Date() }
       : updates;
 
     const result = (await this.db
@@ -156,5 +159,28 @@ if (!db) {
 }
 
 export const store: Store = db ? new PostgresStore(db) : new MemoryStore();
+
+// Runs `fn` against a store scoped to one chama for the duration of a single
+// transaction, by setting the app.current_chama_id GUC that the RLS policies
+// in drizzle/0001_rls_policies.sql check. Endpoints that read or write across
+// members within a chama (governance queue/decision, and future
+// contributions/investment/lending endpoints) should route their queries
+// through the scoped store this returns rather than the top-level `store`.
+export async function withTenantContext<T>(
+  chamaId: string,
+  fn: (scopedStore: Store) => Promise<T>
+): Promise<T> {
+  if (!db) {
+    // Memory store has no RLS to scope — app-layer filtering already applies.
+    return fn(store);
+  }
+
+  return db.transaction(async (tx) => {
+    await tx.execute(
+      sql`select set_config('app.current_chama_id', ${chamaId}, true)`
+    );
+    return fn(new PostgresStore(tx));
+  });
+}
 
 export { schema };

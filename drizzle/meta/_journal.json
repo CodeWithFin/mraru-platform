@@ -15,6 +15,13 @@
       "when": 1787034940299,
       "tag": "0001_rls_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787035536536,
+      "tag": "0002_add_member_last_nudge_stage",
+      "breakpoints": true
     }
   ]
 }

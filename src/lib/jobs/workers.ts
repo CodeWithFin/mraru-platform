@@ -1,7 +1,7 @@
 import { store } from "@/db";
 import { transitionMemberState } from "@/lib/onboarding/state-machine";
 import { fetchDiditSessionDecision } from "@/lib/integrations/didit";
-import { sendOtpSms } from "@/lib/integrations/tilil";
+import { sendTililSms } from "@/lib/integrations/tilil";
 import { generateResumeToken } from "@/lib/onboarding/resume";
 
 export async function processKycWebhookPayload(payload: any) {
@@ -33,15 +33,31 @@ export async function processKycWebhookPayload(payload: any) {
   if (status === "Approved") {
     await store.update("members", (m) => m.id === member.id, { kycStatus: "approved" });
     await transitionMemberState(member.id, "constitution_pending", "didit_system");
-    await sendOtpSms(member.phone, "signup");
+    await sendTililSms(
+      member.phone,
+      "Your Mraru identity verification was approved. Next step: review and accept the chama constitution."
+    );
     console.log(`[KYC APPROVED] Member ${member.id} advanced to constitution_pending`);
   } else if (status === "Declined" || status === "Rejected") {
     await store.update("members", (m) => m.id === member.id, { kycStatus: "rejected" });
     await transitionMemberState(member.id, "kyc_declined", "didit_system");
+    const reason = decisionSummary.decline_reason
+      ? ` Reason: ${decisionSummary.decline_reason}.`
+      : "";
+    await sendTililSms(
+      member.phone,
+      `We couldn't verify your identity documents.${reason} ${
+        decisionSummary.retriable ? "You can try again from the app." : "Your case has been sent to the Secretary for review."
+      }`
+    );
     console.log(`[KYC DECLINED] Member ${member.id} moved to kyc_declined`);
   } else if (status === "In Review" || status === "InReview") {
     await store.update("members", (m) => m.id === member.id, { kycStatus: "in_review" });
     await transitionMemberState(member.id, "kyc_in_review", "didit_system");
+    await sendTililSms(
+      member.phone,
+      "Your Mraru identity verification needs a closer look — our Secretary will review it shortly."
+    );
     console.log(`[KYC IN REVIEW] Member ${member.id} routed to Secretary queue`);
   } else if (status === "Abandoned") {
     await store.update("members", (m) => m.id === member.id, { kycStatus: "abandoned" });
@@ -63,16 +79,31 @@ export async function runIdleNudgeScanner() {
     const { token } = generateResumeToken(member.id);
     const resumeLink = `https://mraru.co.ke/onboarding/resume?token=${token}`;
 
-    if (hoursIdle >= 24 * 7 && member.onboardingState !== "abandoned") {
+    if (hoursIdle >= 24 * 7) {
       // 7 days idle -> mark abandoned (resumable)
       await transitionMemberState(member.id, "abandoned", "system_cron");
       console.log(`[IDLE SCANNER] Marked member ${member.id} as abandoned after 7 days idle.`);
-    } else if (hoursIdle >= 24) {
-      // 24hr nudge SMS
-      console.log(`[IDLE SCANNER] 24h nudge SMS to ${member.phone}: Pick up where you left off at ${resumeLink}`);
-    } else if (hoursIdle >= 1) {
-      // 1hr nudge SMS
-      console.log(`[IDLE SCANNER] 1h nudge SMS to ${member.phone}: Don't forget to complete your Mraru profile: ${resumeLink}`);
+    } else if (hoursIdle >= 24 && member.lastNudgeStage !== "24h") {
+      // 24hr nudge SMS — send once per threshold, not on every scan. Preserve
+      // updatedAt so recording the nudge doesn't itself reset the idle clock.
+      await sendTililSms(
+        member.phone,
+        `Pick up where you left off at Mraru: ${resumeLink}`
+      );
+      await store.update("members", (m) => m.id === member.id, {
+        lastNudgeStage: "24h",
+        updatedAt: member.updatedAt,
+      });
+    } else if (hoursIdle >= 1 && !member.lastNudgeStage) {
+      // 1hr nudge SMS — send once per threshold
+      await sendTililSms(
+        member.phone,
+        `Don't forget to complete your Mraru profile: ${resumeLink}`
+      );
+      await store.update("members", (m) => m.id === member.id, {
+        lastNudgeStage: "1h",
+        updatedAt: member.updatedAt,
+      });
     }
   }
 }
